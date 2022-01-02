@@ -23,19 +23,19 @@ class AlbumsHandler {
 
       const response = new ResponseBuilder().setStatus('success').setData({
         albumId: id,
-      })
+      }).build()
 
       return h.response(response).code(200)
     } catch (err) {
       if (err instanceof InvariantError) {
-        const response = new ResponseBuilder().setStatus('fail').setMessage(err.message)
+        const response = new ResponseBuilder().setStatus('fail').setMessage(err.message).build()
 
         return h.response(response).code(err.statusCode)
       }
 
       console.error(err)
 
-      const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi kesahalan di server kami.')
+      const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi kesahalan di server kami.').build()
 
       return h.response(response).code(500)
     }
@@ -45,21 +45,21 @@ class AlbumsHandler {
     try {
       const album = await this._service.getAlbumById(request.params.id)
 
-      const response = new ResponseBuilder().setStatus('success').setData({ album })
+      const response = new ResponseBuilder().setStatus('success').setData({ album }).build()
 
       return h.response(response).code(200)
     } catch (err) {
       if (err instanceof NotFoundError) {
-        const response = new ResponseBuilder().setStatus('fail').setMessage(err.message)
+        const response = new ResponseBuilder().setStatus('fail').setMessage(err.message).build()
 
         return h.response(response).code(err.statusCode)
       }
 
       console.error(err)
 
-      const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi error di server kami.')
+      const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi error di server kami.').build()
 
-      return h.response(response)
+      return h.response(response).code(500)
     }
   }
 
@@ -71,19 +71,19 @@ class AlbumsHandler {
 
       await this._service.editAlbumById(request.params.id, { name, year })
 
-      const response = new ResponseBuilder().setStatus('success').setMessage('Berhasil edit album.')
+      const response = new ResponseBuilder().setStatus('success').setMessage('Berhasil edit album.').build()
 
       return h.response(response).code(200)
     } catch (err) {
       if (err instanceof NotFoundError) {
-        const response = new ResponseBuilder().setStatus('fail').setMessage(err.message)
+        const response = new ResponseBuilder().setStatus('fail').setMessage(err.message).build()
 
         return h.response(response).code(err.statusCode)
       }
 
       console.log(err)
 
-      const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi kesalahan di server kami.')
+      const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi kesalahan di server kami.').build()
 
       return h.response(response).code(500)
     }
@@ -93,19 +93,19 @@ class AlbumsHandler {
     try {
       await this._service.deleteAlbumById(request.params.id)
 
-      const response = new ResponseBuilder().setStatus('success').setMessage('Berhasil hapus data.')
+      const response = new ResponseBuilder().setStatus('success').setMessage('Berhasil hapus data.').build()
 
       return h.response(response).code(200)
     } catch (err) {
       if (err instanceof NotFoundError) {
-        const response = new ResponseBuilder().setStatus('fail').setMessage(err.message)
+        const response = new ResponseBuilder().setStatus('fail').setMessage(err.message).build()
 
         return h.response(response).code(err.statusCode)
       }
 
       console.error(err)
 
-      const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi kesalahan di server kami.')
+      const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi kesalahan di server kami.').build()
 
       return h.response(response).code(500)
     }
