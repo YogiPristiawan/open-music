@@ -8,7 +8,7 @@
         "airbnb-base"
     ],
     "parserOptions": {
-        "ecmaVersion": 13
+        "ecmaVersion": 2021
     },
     "rules": {
         "no-console": "off",
@@ -36,6 +36,7 @@
                 "properties": "never",
                 "ignoreDestructuring": true
             }
-        ]
+        ],
+        "func-names": ["error", "as-needed"]
     }
 }
