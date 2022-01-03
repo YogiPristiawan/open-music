@@ -45,7 +45,10 @@ class SongsHandler {
 
   async getSongs(request, h) {
     try {
-      const songs = await this._service.getSongs()
+      const query = {}
+      if (request.query.title) query.title = request.query.title
+      if (request.query.performer) query.performer = request.query.performer
+      const songs = await this._service.getSongs(query)
 
       const response = new ResponseBuilder().setStatus('success').setData({ songs }).build()
 

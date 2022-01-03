@@ -33,11 +33,29 @@ class SongsService {
     return result.rows[0].id
   }
 
-  async getSongs() {
+  async getSongs(queryParam = {}) {
     const query = {
       text: 'SELECT id, title, performer FROM songs',
     }
+    const queryParamKeys = Object.keys(queryParam)
 
+    if (queryParamKeys.length > 0) {
+      const bind = []
+
+      query.text += ' WHERE'
+
+      for (let i = 0; i < queryParamKeys.length; i++) {
+        const key = queryParamKeys[i]
+
+        query.text += ` ${key} ILIKE $${i + 1}`
+        bind.push(`%${queryParam[key]}%`)
+
+        if (i + 1 !== queryParamKeys.length) {
+          query.text += ' AND'
+        }
+      }
+      query.values = bind
+    }
     const result = await this._pool.query(query)
 
     if (!result.rows.length) {

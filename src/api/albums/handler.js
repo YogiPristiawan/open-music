@@ -81,7 +81,7 @@ class AlbumsHandler {
         return h.response(response).code(err.statusCode)
       }
 
-      console.log(err)
+      console.error(err)
 
       const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi kesalahan di server kami.').build()
 
