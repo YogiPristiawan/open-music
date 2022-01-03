@@ -18,7 +18,11 @@ const ResponseBuilder = function () {
     },
 
     build() {
-      return new ResponseServiceProvider(this.status, this.message, this.data).generate()
+      return new ResponseServiceProvider({
+        status: this.status,
+        message: this.message,
+        data: this.data,
+      }).generate()
     },
   }
 }

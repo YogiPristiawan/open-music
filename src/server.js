@@ -3,6 +3,9 @@ const Hapi = require('@hapi/hapi')
 const albumsPlugin = require('./api/albums')
 const AlbumsService = require('./services/postgres/AlbumsService')
 const AlbumsValidator = require('./validator/albums')
+const songsPlugin = require('./api/songs')
+const SongsService = require('./services/postgres/SongsService')
+const SongsValidator = require('./validator/songs')
 
 const init = async () => {
   const server = Hapi.server({
@@ -16,13 +19,22 @@ const init = async () => {
     handler: () => 'Hello world',
   })
 
-  await server.register({
-    plugin: albumsPlugin,
-    options: {
-      service: new AlbumsService(),
-      validator: AlbumsValidator,
+  await server.register([
+    {
+      plugin: albumsPlugin,
+      options: {
+        service: new AlbumsService(),
+        validator: AlbumsValidator,
+      },
     },
-  })
+    {
+      plugin: songsPlugin,
+      options: {
+        service: new SongsService(),
+        validator: SongsValidator,
+      },
+    },
+  ])
 
   await server.start()
   console.log('Server running on %s', server.info.uri)
