@@ -43,7 +43,7 @@ class AlbumsService {
       throw new NotFoundError('Album tidak ditemukan.')
     }
 
-    return result.rows
+    return result.rows[0]
   }
 
   async editAlbumById(id, { name, year }) {

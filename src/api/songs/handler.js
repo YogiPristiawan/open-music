@@ -27,7 +27,7 @@ class SongsHandler {
 
       const response = new ResponseBuilder().setStatus('success').setData({ songId: id }).build()
 
-      return h.response(response).code(200)
+      return h.response(response).code(201)
     } catch (err) {
       if (err instanceof ClientError) {
         const response = new ResponseBuilder().setStatus('fail').setMessage(err.message).build()
@@ -130,7 +130,7 @@ class SongsHandler {
       return h.response(response).code(200)
     } catch (err) {
       if (err instanceof ClientError) {
-        const response = new ResponseBuilder().setStatus('success').setMessage(err.message).build()
+        const response = new ResponseBuilder().setStatus('fail').setMessage(err.message).build()
 
         return h.response(response).code(err.statusCode)
       }

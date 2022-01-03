@@ -35,7 +35,7 @@ class SongsService {
 
   async getSongs() {
     const query = {
-      text: 'SELECT * FROM songs',
+      text: 'SELECT id, title, performer FROM songs',
     }
 
     const result = await this._pool.query(query)

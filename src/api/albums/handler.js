@@ -1,6 +1,6 @@
 const InvariantError = require('../../exceptions/InvariantError')
-const NotFoundError = require('../../exceptions/NotFoundError')
 const ResponseBuilder = require('../../builders/ResponseBuilder')
+const ClientError = require('../../exceptions/ClientError')
 
 class AlbumsHandler {
   constructor(service, validator) {
@@ -25,7 +25,7 @@ class AlbumsHandler {
         albumId: id,
       }).build()
 
-      return h.response(response).code(200)
+      return h.response(response).code(201)
     } catch (err) {
       if (err instanceof InvariantError) {
         const response = new ResponseBuilder().setStatus('fail').setMessage(err.message).build()
@@ -49,7 +49,7 @@ class AlbumsHandler {
 
       return h.response(response).code(200)
     } catch (err) {
-      if (err instanceof NotFoundError) {
+      if (err instanceof ClientError) {
         const response = new ResponseBuilder().setStatus('fail').setMessage(err.message).build()
 
         return h.response(response).code(err.statusCode)
@@ -75,7 +75,7 @@ class AlbumsHandler {
 
       return h.response(response).code(200)
     } catch (err) {
-      if (err instanceof NotFoundError) {
+      if (err instanceof ClientError) {
         const response = new ResponseBuilder().setStatus('fail').setMessage(err.message).build()
 
         return h.response(response).code(err.statusCode)
@@ -97,7 +97,7 @@ class AlbumsHandler {
 
       return h.response(response).code(200)
     } catch (err) {
-      if (err instanceof NotFoundError) {
+      if (err instanceof ClientError) {
         const response = new ResponseBuilder().setStatus('fail').setMessage(err.message).build()
 
         return h.response(response).code(err.statusCode)
