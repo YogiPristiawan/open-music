@@ -33,7 +33,25 @@ class AlbumsService {
 
   async getAlbumById(id) {
     const query = {
-      text: 'SELECT albums.*, json_agg(json_build_object(\'id\', songs.id, \'title\', songs.title, \'performer\', songs.performer)) AS songs FROM albums INNER JOIN songs ON songs.album_id = albums.id WHERE albums.id = $1 GROUP BY albums.id',
+      text: `
+      SELECT 
+        albums.*, 
+        CASE
+        WHEN
+          songs.album_id IS NOT NULL
+          THEN
+          json_agg(json_build_object('id', songs.id, 'title', songs.title, 'performer', songs.performer))
+        ELSE
+          null
+        END AS songs
+      FROM 
+        albums 
+      LEFT JOIN 
+        songs ON songs.album_id = albums.id 
+      WHERE albums.id = $1
+      GROUP BY 
+        albums.id,
+        songs.album_id`,
       values: [id],
     }
 
@@ -42,6 +60,15 @@ class AlbumsService {
     if (!result.rows.length) {
       throw new NotFoundError('Album tidak ditemukan.')
     }
+
+    result.rows = result.rows.map((v, i, arr) => {
+      if (v.songs === null) {
+        const { songs, ...except } = arr[i]
+        return except
+      }
+
+      return v
+    })
 
     return result.rows[0]
   }
