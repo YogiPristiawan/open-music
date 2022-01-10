@@ -10,6 +10,7 @@ class AuthenticationsHandler {
 
     this.postAuthenticationHandler = this.postAuthenticationHandler.bind(this)
     this.putAuthenticationHandler = this.putAuthenticationHandler.bind(this)
+    this.deleteAuthenticationHandler = this.deleteAuthenticationHandler.bind(this)
   }
 
   async postAuthenticationHandler(request, h) {
@@ -65,6 +66,33 @@ class AuthenticationsHandler {
       console.error(err)
 
       const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi kesalahan di sever kami.')
+
+      return h.response(response).code(500)
+    }
+  }
+
+  async deleteAuthenticationHandler(request, h) {
+    try {
+      this._validator.validateDeleteRefreshTokenPayload(request.payload)
+
+      const { refreshToken } = request.payload
+
+      await this._authenticationsService.verifyRefreshToken(refreshToken)
+      await this._authenticationsService.deleteRefreshToken(refreshToken)
+
+      const response = new ResponseBuilder().setStatus('success').setMessage('Berhasl hapus refresh token.')
+
+      return h.response(response).code(200)
+    } catch (err) {
+      if (err instanceof ClientError) {
+        const response = new ResponseBuilder().setStatus('fail').setMessage(err.message)
+
+        return h.response(response).code(err.statusCode)
+      }
+
+      console.error(err)
+
+      const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi kesalahan di server kami.')
 
       return h.response(response).code(500)
     }

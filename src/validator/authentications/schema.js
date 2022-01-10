@@ -9,4 +9,12 @@ const RefreshTokenPayloadSchema = Joi.object({
   refreshToken: Joi.string().required(),
 })
 
-module.exports = { AuthenticationPayloadSchema, RefreshTokenPayloadSchema }
+const DeleteRefreshTokenPayloadSchema = Joi.object({
+  refreshToken: Joi.string().required(),
+})
+
+module.exports = {
+  AuthenticationPayloadSchema,
+  RefreshTokenPayloadSchema,
+  DeleteRefreshTokenPayloadSchema,
+}
