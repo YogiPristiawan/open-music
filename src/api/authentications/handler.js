@@ -9,6 +9,7 @@ class AuthenticationsHandler {
     this._tokenManager = tokenManager
 
     this.postAuthenticationHandler = this.postAuthenticationHandler.bind(this)
+    this.putAuthenticationHandler = this.putAuthenticationHandler.bind(this)
   }
 
   async postAuthenticationHandler(request, h) {
@@ -35,6 +36,35 @@ class AuthenticationsHandler {
       console.error(err)
 
       const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi kesalahan di server kami.')
+
+      return h.response(response).code(500)
+    }
+  }
+
+  async putAuthenticationHandler(request, h) {
+    try {
+      this._validator.validateRefreshTokenPayload(request.payload)
+
+      const { refreshToken } = request.payload
+      const { userId } = this._tokenManager.verifyRefreshToken(refreshToken)
+
+      await this._authenticationsService.verifyRefreshToken(refreshToken)
+
+      const accessToken = this._tokenManager.generateAccessToken({ userId })
+
+      const response = new ResponseBuilder().setStatus('success').setData({ accessToken })
+
+      return h.response(response).code(200)
+    } catch (err) {
+      if (err instanceof ClientError) {
+        const response = new ResponseBuilder().setStatus('fail').setMessage(err.message)
+
+        return h.response(response).code(err.statusCode)
+      }
+
+      console.error(err)
+
+      const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi kesalahan di sever kami.')
 
       return h.response(response).code(500)
     }

@@ -65,6 +65,8 @@ class UsersService {
     if (!match) {
       throw new AuthenticationError('Password yang anda masukkan salah')
     }
+
+    return result.rows[0].id
   }
 }
 
