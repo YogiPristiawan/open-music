@@ -11,7 +11,7 @@
         "ecmaVersion": 2021
     },
     "rules": {
-        "no-console": ["error", { "allow": ["warn", "error"] }],
+        "no-console": ["error", { "allow": ["warn", "error", "log"] }],
         "linebreak-style": [
             0,
             "windows"
