@@ -80,19 +80,19 @@ class AuthenticationsHandler {
       await this._authenticationsService.verifyRefreshToken(refreshToken)
       await this._authenticationsService.deleteRefreshToken(refreshToken)
 
-      const response = new ResponseBuilder().setStatus('success').setMessage('Berhasl hapus refresh token.')
+      const response = new ResponseBuilder().setStatus('success').setMessage('Berhasl hapus refresh token.').build()
 
       return h.response(response).code(200)
     } catch (err) {
       if (err instanceof ClientError) {
-        const response = new ResponseBuilder().setStatus('fail').setMessage(err.message)
+        const response = new ResponseBuilder().setStatus('fail').setMessage(err.message).build()
 
         return h.response(response).code(err.statusCode)
       }
 
       console.error(err)
 
-      const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi kesalahan di server kami.')
+      const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi kesalahan di server kami.').build()
 
       return h.response(response).code(500)
     }

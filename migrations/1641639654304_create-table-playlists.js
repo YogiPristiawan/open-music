@@ -14,7 +14,6 @@ exports.up = (pgm) => {
     },
     owner: {
       type: 'CHAR(36)',
-      notNull: true,
     },
   })
 }
