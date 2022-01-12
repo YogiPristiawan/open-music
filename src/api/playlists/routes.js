@@ -27,6 +27,9 @@ const routes = (handler) => [
     method: 'GET',
     path: '/playlists/{playlistId}/songs',
     handler: handler.getPlaylistSongByPlaylistIdHandler,
+    options: {
+      auth: 'open-api_jwt',
+    },
   },
 ]
 

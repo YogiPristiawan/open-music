@@ -97,10 +97,25 @@ class PlaylistsHandler {
   async getPlaylistSongByPlaylistIdHandler(request, h) {
     try {
       const { playlistId } = request.params
+      const { userId } = request.auth.credentials
 
-      const songs = await this._playlistsService.getSongsByPlaylistId(playlistId)
+      await this._playlistsService.verifyPlaylistOwner(userId)
 
-      const response = new ResponseBuilder().setStatus('success').setData({ songs }).build()
+      const playlistSongs = await this._playlistsService.getSongsByPlaylistId(playlistId)
+      const songs = playlistSongs.map((v) => ({
+        id: v.song_id,
+        title: v.song_title,
+        performer: v.song_performer,
+      }))
+
+      const response = new ResponseBuilder().setStatus('success').setData({
+        playlist: {
+          id: playlistSongs[0].playlist_id,
+          name: playlistSongs[0].playlist_name,
+          username: playlistSongs[0].username,
+          songs,
+        },
+      }).build()
 
       return h.response(response).code(200)
     } catch (err) {
