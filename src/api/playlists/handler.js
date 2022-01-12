@@ -2,12 +2,15 @@ const ResponseBuilder = require('../../builders/ResponseBuilder')
 const ClientError = require('../../exceptions/ClientError')
 
 class PlaylistsHandler {
-  constructor(playlistsService, validator) {
+  constructor(playlistsService, songsService, validator) {
     this._playlistsService = playlistsService
+    this._songsService = songsService
     this._validator = validator
 
     this.postPlaylistHandler = this.postPlaylistHandler.bind(this)
     this.getPlaylistsHandler = this.getPlaylistsHandler.bind(this)
+    this.postPlaylistSongHandler = this.postPlaylistSongHandler.bind(this)
+    this.getPlaylistSongByPlaylistIdHandler = this.getPlaylistSongByPlaylistIdHandler.bind(this)
   }
 
   async postPlaylistHandler(request, h) {
@@ -44,6 +47,60 @@ class PlaylistsHandler {
       const playlists = await this._playlistsService.getAllPlaylistsByUserId(userId)
 
       const response = new ResponseBuilder().setStatus('success').setData({ playlists }).build()
+
+      return h.response(response).code(200)
+    } catch (err) {
+      if (err instanceof ClientError) {
+        const response = new ResponseBuilder().setStatus('fail').setMessage(err.message).build()
+
+        return h.response(response).code(err.statusCode)
+      }
+
+      console.error(err)
+
+      const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi kesalahan di server kami.').build()
+
+      return h.response(response).code(500)
+    }
+  }
+
+  async postPlaylistSongHandler(request, h) {
+    try {
+      this._validator.validatePostPlaylistSongPayload(request.payload)
+
+      const { userId } = request.auth.credentials
+      const { songId } = request.payload
+      const { playlistId } = request.params
+
+      await this._playlistsService.verifyPlaylistOwner(userId)
+      await this._songsService.getSongById(songId)
+      await this._playlistsService.addPlaylistSong({ playlistId, songId })
+
+      const response = new ResponseBuilder().setStatus('success').setMessage('Berhasil tambah data song di dalam playlist')
+
+      return h.response(response).code(201)
+    } catch (err) {
+      if (err instanceof ClientError) {
+        const response = new ResponseBuilder().setStatus('fail').setMessage(err.message).build()
+
+        return h.response(response).code(err.statusCode)
+      }
+
+      console.error(err)
+
+      const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi kesalahan di server kami.')
+
+      return h.response(response).code(500)
+    }
+  }
+
+  async getPlaylistSongByPlaylistIdHandler(request, h) {
+    try {
+      const { playlistId } = request.params
+
+      const songs = await this._playlistsService.getSongsByPlaylistId(playlistId)
+
+      const response = new ResponseBuilder().setStatus('success').setData({ songs }).build()
 
       return h.response(response).code(200)
     } catch (err) {

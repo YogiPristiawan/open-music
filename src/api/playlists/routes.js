@@ -15,6 +15,19 @@ const routes = (handler) => [
       auth: 'open-api_jwt',
     },
   },
+  {
+    method: 'POST',
+    path: '/playlists/{playlistId}/songs',
+    handler: handler.postPlaylistSongHandler,
+    options: {
+      auth: 'open-api_jwt',
+    },
+  },
+  {
+    method: 'GET',
+    path: '/playlists/{playlistId}/songs',
+    handler: handler.getPlaylistSongByPlaylistIdHandler,
+  },
 ]
 
 module.exports = routes
