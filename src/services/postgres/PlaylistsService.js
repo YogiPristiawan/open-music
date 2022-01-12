@@ -96,15 +96,49 @@ class PlaylistsService {
     return result.rows
   }
 
-  async verifyPlaylistOwner(userId) {
+  async deletePlaylistSongByPlaylistIdAndSongId(playlistId, songId) {
     const query = {
-      text: 'SELECT * FROM playlists WHERE owner = $1',
-      values: [userId],
+      text: 'DELETE FROM playlist_songs WHERE playlist_id = $1 AND song_id = $2 RETURNING id ',
+      values: [playlistId, songId],
     }
 
     const result = await this._pool.query(query)
 
     if (!result.rows.length) {
+      throw new NotFoundError('Tidak ditemukan lagu di dalam playlist.')
+    }
+
+    return result.rows[0].id
+  }
+
+  async deletePlaylistByPlaylistId(playlistId) {
+    const query = {
+      text: 'DELETE FROM playlists WHERE id = $1 RETURNING id',
+      values: [playlistId],
+    }
+
+    const result = await this._pool.query(query)
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Playlist tidak ditemukan.')
+    }
+
+    return result.rows[0].id
+  }
+
+  async verifyPlaylistOwner(playlistId, userId) {
+    const query = {
+      text: 'SELECT * FROM playlists WHERE id = $1',
+      values: [playlistId],
+    }
+
+    const result = await this._pool.query(query)
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Playlist tidak ditemukan.')
+    }
+
+    if (result.rows[0].owner !== userId) {
       throw new AuthorizationError('Anda tidak berhak mengakses playlist ini.')
     }
   }

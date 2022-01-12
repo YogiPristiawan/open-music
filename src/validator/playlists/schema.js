@@ -8,4 +8,12 @@ const PostPlaylistSongPayloadSchema = Joi.object({
   songId: Joi.string().required(),
 })
 
-module.exports = { PostPlaylistPayloadSchema, PostPlaylistSongPayloadSchema }
+const DeletePlaylistSongByPlaylistIdAndSongIdPayloadSchema = Joi.object({
+  songId: Joi.string().required(),
+})
+
+module.exports = {
+  PostPlaylistPayloadSchema,
+  PostPlaylistSongPayloadSchema,
+  DeletePlaylistSongByPlaylistIdAndSongIdPayloadSchema,
+}

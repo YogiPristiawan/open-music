@@ -31,6 +31,22 @@ const routes = (handler) => [
       auth: 'open-api_jwt',
     },
   },
+  {
+    method: 'DELETE',
+    path: '/playlists/{playlistId}/songs',
+    handler: handler.deletePlaylistSongBySongIdHandler,
+    options: {
+      auth: 'open-api_jwt',
+    },
+  },
+  {
+    method: 'DELETE',
+    path: '/playlists/{playlistId}',
+    handler: handler.deletePlaylistByPlaylistIdHandler,
+    options: {
+      auth: 'open-api_jwt',
+    },
+  },
 ]
 
 module.exports = routes

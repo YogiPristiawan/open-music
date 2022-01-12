@@ -11,6 +11,8 @@ class PlaylistsHandler {
     this.getPlaylistsHandler = this.getPlaylistsHandler.bind(this)
     this.postPlaylistSongHandler = this.postPlaylistSongHandler.bind(this)
     this.getPlaylistSongByPlaylistIdHandler = this.getPlaylistSongByPlaylistIdHandler.bind(this)
+    this.deletePlaylistSongBySongIdHandler = this.deletePlaylistSongBySongIdHandler.bind(this)
+    this.deletePlaylistByPlaylistIdHandler = this.deletePlaylistByPlaylistIdHandler.bind(this)
   }
 
   async postPlaylistHandler(request, h) {
@@ -72,7 +74,7 @@ class PlaylistsHandler {
       const { songId } = request.payload
       const { playlistId } = request.params
 
-      await this._playlistsService.verifyPlaylistOwner(userId)
+      await this._playlistsService.verifyPlaylistOwner(playlistId, userId)
       await this._songsService.getSongById(songId)
       await this._playlistsService.addPlaylistSong({ playlistId, songId })
 
@@ -99,7 +101,7 @@ class PlaylistsHandler {
       const { playlistId } = request.params
       const { userId } = request.auth.credentials
 
-      await this._playlistsService.verifyPlaylistOwner(userId)
+      await this._playlistsService.verifyPlaylistOwner(playlistId, userId)
 
       const playlistSongs = await this._playlistsService.getSongsByPlaylistId(playlistId)
       const songs = playlistSongs.map((v) => ({
@@ -116,6 +118,62 @@ class PlaylistsHandler {
           songs,
         },
       }).build()
+
+      return h.response(response).code(200)
+    } catch (err) {
+      if (err instanceof ClientError) {
+        const response = new ResponseBuilder().setStatus('fail').setMessage(err.message).build()
+
+        return h.response(response).code(err.statusCode)
+      }
+
+      console.error(err)
+
+      const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi kesalahan di server kami.').build()
+
+      return h.response(response).code(500)
+    }
+  }
+
+  async deletePlaylistSongBySongIdHandler(request, h) {
+    try {
+      this._validator.validateDeletePlaylistSongByPlaylistIdAndSongIdPayload(request.payload)
+
+      const { userId } = request.auth.credentials
+      const { playlistId } = request.params
+      const { songId } = request.payload
+
+      await this._playlistsService.verifyPlaylistOwner(playlistId, userId)
+
+      await this._playlistsService.deletePlaylistSongByPlaylistIdAndSongId(playlistId, songId)
+
+      const response = new ResponseBuilder().setStatus('success').setMessage('Berhasil hapus lagu di dalam playlist.').build()
+
+      return h.response(response).code(200)
+    } catch (err) {
+      if (err instanceof ClientError) {
+        const response = new ResponseBuilder().setStatus('fail').setMessage(err.message).build()
+
+        return h.response(response).code(err.statusCode)
+      }
+
+      console.error(err)
+
+      const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi kesalahan di server kami.').build()
+
+      return h.response(response).code(500)
+    }
+  }
+
+  async deletePlaylistByPlaylistIdHandler(request, h) {
+    try {
+      const { userId } = request.auth.credentials
+      const { playlistId } = request.params
+
+      await this._playlistsService.verifyPlaylistOwner(playlistId, userId)
+      await this._playlistsService.deletePlaylistByPlaylistId(playlistId)
+
+      const response = new ResponseBuilder().setStatus('success').setMessage('Berhasil hapus playlist').build()
 
       return h.response(response).code(200)
     } catch (err) {
