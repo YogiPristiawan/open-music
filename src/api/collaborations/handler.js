@@ -46,9 +46,10 @@ class CollaborationsHandler {
     try {
       this._validator.validateDeleteCollaborationPaylaod(request.payload)
 
+      const { userId: ownerId } = request.auth.credentials
       const { playlistId, userId } = request.payload
 
-      await this._collaborationsService.verifyCollaborationAccess(playlistId, userId)
+      await this._collaborationsService.verifyCollaborationAccess(playlistId, ownerId)
       await this._collaborationsService
         .deleteCollaboration(playlistId, userId)
 

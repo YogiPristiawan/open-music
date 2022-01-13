@@ -63,7 +63,6 @@ class CollaborationsService {
     if (!result.rows.length) {
       throw new NotFoundError('Playlist tidak ditemukan.')
     }
-
     const owner = result.rows.filter((v) => v.owner === userId)
 
     if (!(owner.length > 0)) {

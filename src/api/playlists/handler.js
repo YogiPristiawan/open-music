@@ -2,9 +2,10 @@ const ResponseBuilder = require('../../builders/ResponseBuilder')
 const ClientError = require('../../exceptions/ClientError')
 
 class PlaylistsHandler {
-  constructor(playlistsService, songsService, validator) {
+  constructor(playlistsService, songsService, playlistSongActivitiesService, validator) {
     this._playlistsService = playlistsService
     this._songsService = songsService
+    this._playlistSongActivitiesService = playlistSongActivitiesService
     this._validator = validator
 
     this.postPlaylistHandler = this.postPlaylistHandler.bind(this)
@@ -13,6 +14,7 @@ class PlaylistsHandler {
     this.getPlaylistSongByPlaylistIdHandler = this.getPlaylistSongByPlaylistIdHandler.bind(this)
     this.deletePlaylistSongBySongIdHandler = this.deletePlaylistSongBySongIdHandler.bind(this)
     this.deletePlaylistByPlaylistIdHandler = this.deletePlaylistByPlaylistIdHandler.bind(this)
+    this.getPlaylistSongActivities = this.getPlaylistSongActivities.bind(this)
   }
 
   async postPlaylistHandler(request, h) {
@@ -78,6 +80,12 @@ class PlaylistsHandler {
 
       await this._songsService.getSongById(songId)
       await this._playlistsService.addPlaylistSong({ playlistId, songId })
+      await this._playlistSongActivitiesService.postPlaylistSongActivity({
+        playlistId,
+        songId,
+        userId,
+        action: 'add',
+      })
 
       const response = new ResponseBuilder().setStatus('success').setMessage('Berhasil tambah data song di dalam playlist')
 
@@ -145,8 +153,13 @@ class PlaylistsHandler {
       const { songId } = request.payload
 
       await this._playlistsService.verifyPlaylistAccess(playlistId, userId)
-
       await this._playlistsService.deletePlaylistSongByPlaylistIdAndSongId(playlistId, songId)
+      await this._playlistSongActivitiesService.postPlaylistSongActivity({
+        playlistId,
+        songId,
+        userId,
+        action: 'delete',
+      })
 
       const response = new ResponseBuilder().setStatus('success').setMessage('Berhasil hapus lagu di dalam playlist.').build()
 
@@ -175,6 +188,37 @@ class PlaylistsHandler {
       await this._playlistsService.deletePlaylistByPlaylistId(playlistId)
 
       const response = new ResponseBuilder().setStatus('success').setMessage('Berhasil hapus playlist').build()
+
+      return h.response(response).code(200)
+    } catch (err) {
+      if (err instanceof ClientError) {
+        const response = new ResponseBuilder().setStatus('fail').setMessage(err.message).build()
+
+        return h.response(response).code(err.statusCode)
+      }
+
+      console.error(err)
+
+      const response = new ResponseBuilder().setStatus('error').setMessage('Maaf, sepertinya terjadi kesalahan di server kami.').build()
+
+      return h.response(response).code(500)
+    }
+  }
+
+  async getPlaylistSongActivities(request, h) {
+    try {
+      const { userId } = request.auth.credentials
+      const { playlistId } = request.params
+
+      await this._playlistsService.verifyPlaylistAccess(playlistId, userId)
+
+      const activities = await this._playlistSongActivitiesService
+        .getPlaylistSongActivities(playlistId)
+
+      const response = new ResponseBuilder().setStatus('success').setData({
+        playlistId,
+        activities,
+      }).build()
 
       return h.response(response).code(200)
     } catch (err) {
