@@ -46,7 +46,7 @@ class PlaylistsHandler {
     try {
       const { userId } = request.auth.credentials
 
-      const playlists = await this._playlistsService.getAllPlaylistsByUserId(userId)
+      const playlists = await this._playlistsService.getAllPlaylistsByOwnerAndCollaborator(userId)
 
       const response = new ResponseBuilder().setStatus('success').setData({ playlists }).build()
 
@@ -74,7 +74,8 @@ class PlaylistsHandler {
       const { songId } = request.payload
       const { playlistId } = request.params
 
-      await this._playlistsService.verifyPlaylistOwner(playlistId, userId)
+      await this._playlistsService.verifyPlaylistAccess(playlistId, userId)
+
       await this._songsService.getSongById(songId)
       await this._playlistsService.addPlaylistSong({ playlistId, songId })
 
@@ -101,7 +102,7 @@ class PlaylistsHandler {
       const { playlistId } = request.params
       const { userId } = request.auth.credentials
 
-      await this._playlistsService.verifyPlaylistOwner(playlistId, userId)
+      await this._playlistsService.verifyPlaylistAccess(playlistId, userId)
 
       const playlistSongs = await this._playlistsService.getSongsByPlaylistId(playlistId)
       const songs = playlistSongs.map((v) => ({
@@ -143,7 +144,7 @@ class PlaylistsHandler {
       const { playlistId } = request.params
       const { songId } = request.payload
 
-      await this._playlistsService.verifyPlaylistOwner(playlistId, userId)
+      await this._playlistsService.verifyPlaylistAccess(playlistId, userId)
 
       await this._playlistsService.deletePlaylistSongByPlaylistIdAndSongId(playlistId, songId)
 

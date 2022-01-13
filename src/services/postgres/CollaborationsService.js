@@ -1,5 +1,6 @@
 const { Pool } = require('pg')
 const { v4: uuidv4 } = require('uuid')
+const AuthorizationError = require('../../exceptions/AuthorizationError')
 const InvariantError = require('../../exceptions/InvariantError')
 const NotFoundError = require('../../exceptions/NotFoundError')
 
@@ -31,7 +32,7 @@ class CollaborationsService {
     return result.rows[0].id
   }
 
-  async deleteCollaboration({ playlistId, userId }) {
+  async deleteCollaboration(playlistId, userId) {
     const query = {
       text: 'DELETE FROM collaborations WHERE playlist_id = $1 AND user_id = $2 RETURNING id',
       values: [playlistId, userId],
@@ -44,6 +45,30 @@ class CollaborationsService {
     }
 
     return result.rows[0].id
+  }
+
+  async verifyCollaborationAccess(playlistId, userId) {
+    const query = {
+      text: `SELECT        
+        playlists.owner
+      FROM
+        playlists        
+      WHERE
+        playlists.id = $1`,
+      values: [playlistId],
+    }
+
+    const result = await this._pool.query(query)
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Playlist tidak ditemukan.')
+    }
+
+    const owner = result.rows.filter((v) => v.owner === userId)
+
+    if (!(owner.length > 0)) {
+      throw new AuthorizationError('Anda tidak berhak mengakses collaborations ini.')
+    }
   }
 }
 
